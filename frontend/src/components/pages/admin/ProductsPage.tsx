@@ -1,37 +1,323 @@
-import React from 'react';
-import { Package, Plus, Search } from 'lucide-react';
+import React, { useState } from 'react';
+import { 
+  Package, 
+  Plus, 
+  Search, 
+  Filter, 
+  MoreVertical, 
+  Edit3, 
+  Trash2, 
+  Eye, 
+  Tag, 
+  Layers, 
+  BarChart3,
+  ChevronRight,
+  LayoutGrid,
+  List,
+  ExternalLink,
+  Archive
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '../../../lib/utils';
+
+// Dummy Data
+const PRODUCTS = [
+  { 
+    id: 'PRD-001', 
+    name: 'Hollyann 3-Seater Sofa', 
+    category: 'Living Room', 
+    price: '145,000', 
+    stock: 12, 
+    status: 'In Stock',
+    image: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?q=80&w=2070&auto=format&fit=crop'
+  },
+  { 
+    id: 'PRD-002', 
+    name: 'Finch Bedroom Set', 
+    category: 'Bedroom', 
+    price: '285,000', 
+    stock: 5, 
+    status: 'Low Stock',
+    image: 'https://images.unsplash.com/photo-1505693419173-42b925685a91?q=80&w=2070&auto=format&fit=crop'
+  },
+  { 
+    id: 'PRD-003', 
+    name: 'Mesh Office Chair', 
+    category: 'Office', 
+    price: '24,500', 
+    stock: 45, 
+    status: 'In Stock',
+    image: 'https://images.unsplash.com/photo-1505797149-4510da941df4?q=80&w=2070&auto=format&fit=crop'
+  },
+  { 
+    id: 'PRD-004', 
+    name: 'Marble Dining Table', 
+    category: 'Dining', 
+    price: '112,000', 
+    stock: 0, 
+    status: 'Out of Stock',
+    image: 'https://images.unsplash.com/photo-1577145946459-1951ca63973c?q=80&w=2070&auto=format&fit=crop'
+  },
+  { 
+    id: 'PRD-005', 
+    name: 'Velvet Wingback Chair', 
+    category: 'Living Room', 
+    price: '58,000', 
+    stock: 8, 
+    status: 'In Stock',
+    image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?q=80&w=2070&auto=format&fit=crop'
+  }
+];
+
+const CATEGORIES = ['All', 'Living Room', 'Bedroom', 'Office', 'Dining', 'Outdoor'];
 
 export const ProductsPage: React.FC = () => {
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
+  const [selectedCategory, setSelectedCategory] = useState('All');
+
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <h1 className="text-2xl font-heading font-black text-admin-navy tracking-tight uppercase">Products Catalog</h1>
-          <p className="text-sm text-admin-muted font-bold mt-1">Manage your inventory and product listings</p>
+          <h1 className="text-3xl font-heading font-black text-primary tracking-tighter italic uppercase">
+            Product <span className="text-accent underline decoration-4 underline-offset-8">Catalog</span>
+          </h1>
+          <p className="text-xs text-admin-muted font-black tracking-[0.2em] mt-2 uppercase flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
+            Managing {PRODUCTS.length} Premium Items
+          </p>
         </div>
-        <button className="flex items-center gap-2 px-6 py-3 bg-accent text-white rounded-xl font-black uppercase tracking-widest text-sm hover:translate-y-[-2px] transition-all shadow-lg shadow-accent/20">
-          <Plus className="w-5 h-5" />
-          Add Product
-        </button>
+        
+        <div className="flex items-center gap-3">
+          <div className="flex p-1 bg-admin-bg rounded-xl border border-admin-border">
+            <button 
+              onClick={() => setViewMode('grid')}
+              className={cn(
+                "p-2 rounded-lg transition-all",
+                viewMode === 'grid' ? "bg-white text-primary shadow-sm" : "text-admin-muted hover:text-primary"
+              )}
+            >
+              <LayoutGrid className="w-5 h-5" />
+            </button>
+            <button 
+              onClick={() => setViewMode('list')}
+              className={cn(
+                "p-2 rounded-lg transition-all",
+                viewMode === 'list' ? "bg-white text-primary shadow-sm" : "text-admin-muted hover:text-primary"
+              )}
+            >
+              <List className="w-5 h-5" />
+            </button>
+          </div>
+          <button className="flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all">
+            <Plus className="w-4 h-4" />
+            Add New Product
+          </button>
+        </div>
       </div>
 
-      <div className="bg-white rounded-[2rem] border border-admin-border shadow-admin">
-        <div className="p-8 border-b border-admin-border flex items-center justify-between">
-           <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-admin-muted" />
-            <input 
-              type="text" 
-              placeholder="Search products..." 
-              className="pl-10 pr-4 py-2 bg-admin-bg/50 border border-admin-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all w-full"
+      {/* Filters Bar */}
+      <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between bg-white/40 backdrop-blur-md p-4 rounded-2xl border border-white/40 shadow-sm">
+        <div className="flex flex-wrap gap-2">
+          {CATEGORIES.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setSelectedCategory(cat)}
+              className={cn(
+                "px-4 py-2 rounded-xl text-[10px] font-black transition-all duration-300 uppercase tracking-widest",
+                selectedCategory === cat 
+                  ? "bg-primary text-white shadow-lg shadow-primary/20" 
+                  : "bg-white/50 text-admin-muted hover:bg-white hover:text-primary"
+              )}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+          <div className="relative group flex-1 sm:w-64">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-admin-muted group-focus-within:text-accent transition-colors" />
+            <input
+              type="text"
+              placeholder="Search products..."
+              className="w-full h-11 pl-12 pr-4 glass-input rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-accent/20"
             />
           </div>
+          
+          <button className="flex items-center justify-center gap-2 h-11 px-6 glass-card rounded-xl text-[10px] font-black text-admin-navy uppercase tracking-widest">
+            <Filter className="w-4 h-4" />
+            <span>Advanced Filters</span>
+          </button>
         </div>
-        <div className="p-20 text-center">
-          <div className="w-20 h-20 bg-admin-bg rounded-full flex items-center justify-center mx-auto mb-6">
-            <Package className="w-10 h-10 text-admin-muted" />
+      </div>
+
+      {/* Products Grid/List */}
+      <div className="relative">
+        <AnimatePresence mode="wait">
+          {viewMode === 'list' ? (
+            <motion.div 
+              key="list"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="liquid-glass rounded-[2.5rem] overflow-hidden border border-white/40"
+            >
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-white/30 border-b border-white/40">
+                      <th className="px-8 py-6 text-[10px] font-black text-admin-muted uppercase tracking-[0.2em]">Product</th>
+                      <th className="px-8 py-6 text-[10px] font-black text-admin-muted uppercase tracking-[0.2em]">Category</th>
+                      <th className="px-8 py-6 text-[10px] font-black text-admin-muted uppercase tracking-[0.2em]">Price</th>
+                      <th className="px-8 py-6 text-[10px] font-black text-admin-muted uppercase tracking-[0.2em]">Stock</th>
+                      <th className="px-8 py-6 text-[10px] font-black text-admin-muted uppercase tracking-[0.2em]">Status</th>
+                      <th className="px-8 py-6 text-[10px] font-black text-admin-muted uppercase tracking-[0.2em]">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/20">
+                    {PRODUCTS.map((product) => (
+                      <tr key={product.id} className="hover:bg-white/40 transition-all duration-300 group">
+                        <td className="px-8 py-6">
+                          <div className="flex items-center gap-4">
+                            <div className="w-14 h-14 rounded-2xl overflow-hidden border border-white/60 shadow-sm flex-shrink-0 group-hover:scale-105 transition-transform">
+                              <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-sm font-black text-primary truncate uppercase tracking-tight">{product.name}</p>
+                              <p className="text-[10px] text-admin-muted font-black tracking-widest uppercase">{product.id}</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-8 py-6">
+                          <span className="text-[10px] font-black text-admin-navy uppercase tracking-widest px-3 py-1 bg-admin-bg/50 rounded-lg">
+                            {product.category}
+                          </span>
+                        </td>
+                        <td className="px-8 py-6 text-sm font-black text-primary italic uppercase tracking-tighter">
+                          KShs {product.price}
+                        </td>
+                        <td className="px-8 py-6">
+                          <div className="flex items-center gap-2">
+                             <div className="flex-1 h-1.5 w-16 bg-admin-bg rounded-full overflow-hidden">
+                               <div 
+                                 className={cn(
+                                   "h-full rounded-full",
+                                   product.stock > 10 ? "bg-green-500" : product.stock > 0 ? "bg-amber-500" : "bg-red-500"
+                                 )}
+                                 style={{ width: `${Math.min(product.stock * 2, 100)}%` }}
+                               />
+                             </div>
+                             <span className="text-xs font-bold text-admin-muted">{product.stock}</span>
+                          </div>
+                        </td>
+                        <td className="px-8 py-6">
+                          <span className={cn(
+                            "premium-badge",
+                            product.status === 'In Stock' && "bg-green-100 text-green-700 border-green-200",
+                            product.status === 'Low Stock' && "bg-amber-100 text-amber-700 border-amber-200",
+                            product.status === 'Out of Stock' && "bg-red-100 text-red-700 border-red-200",
+                          )}>
+                            {product.status}
+                          </span>
+                        </td>
+                        <td className="px-8 py-6">
+                          <div className="flex items-center gap-2">
+                            <button className="p-2 hover:bg-white rounded-lg transition-all group/btn">
+                              <Edit3 className="w-4 h-4 text-admin-muted group-hover/btn:text-accent" />
+                            </button>
+                            <button className="p-2 hover:bg-white rounded-lg transition-all group/btn">
+                              <Eye className="w-4 h-4 text-admin-muted group-hover/btn:text-blue-500" />
+                            </button>
+                            <button className="p-2 hover:bg-white rounded-lg transition-all group/btn">
+                              <MoreVertical className="w-4 h-4 text-admin-muted" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </motion.div>
+          ) : (
+            <motion.div 
+              key="grid"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+            >
+              {PRODUCTS.map((product) => (
+                <motion.div 
+                  key={product.id}
+                  whileHover={{ y: -5 }}
+                  className="glass-card rounded-[2rem] overflow-hidden group border border-white/20"
+                >
+                  <div className="relative aspect-[4/3] overflow-hidden">
+                    <img src={product.image} alt={product.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-primary/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-6">
+                       <div className="flex gap-2 w-full">
+                          <button className="flex-1 py-2 bg-white text-primary rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-accent hover:text-white transition-colors">Quick Edit</button>
+                          <button className="p-2 bg-white/20 backdrop-blur-md text-white rounded-xl hover:bg-white hover:text-primary transition-colors"><ExternalLink className="w-4 h-4" /></button>
+                       </div>
+                    </div>
+                    <div className="absolute top-4 right-4">
+                       <span className={cn(
+                          "px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest shadow-lg",
+                          product.status === 'In Stock' ? "bg-green-500 text-white" : "bg-red-500 text-white"
+                       )}>
+                          {product.status}
+                       </span>
+                    </div>
+                  </div>
+                  <div className="p-6">
+                    <p className="text-[10px] text-accent font-black uppercase tracking-widest mb-1">{product.category}</p>
+                    <h3 className="text-sm font-black text-primary uppercase tracking-tight line-clamp-1 mb-2">{product.name}</h3>
+                    <div className="flex items-center justify-between mt-4">
+                      <p className="text-lg font-black text-primary italic uppercase tracking-tighter">KShs {product.price}</p>
+                      <span className="text-[10px] text-admin-muted font-black uppercase tracking-widest">Stock: {product.stock}</span>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+              <motion.button 
+                whileHover={{ scale: 0.98 }}
+                className="aspect-[4/3] rounded-[2rem] border-4 border-dashed border-admin-border flex flex-col items-center justify-center gap-4 text-admin-muted hover:border-accent hover:text-accent transition-all group bg-admin-bg/30"
+              >
+                <div className="p-4 bg-white rounded-2xl shadow-sm group-hover:scale-110 transition-transform">
+                  <Plus className="w-6 h-6" />
+                </div>
+                <span className="text-[10px] font-black uppercase tracking-[0.2em]">Add New Item</span>
+              </motion.button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* Quick Stats Section */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-admin-navy p-8 rounded-[2rem] text-white flex items-center justify-between">
+          <div>
+            <p className="text-[10px] text-white/60 font-black uppercase tracking-widest mb-1">Low Stock Alerts</p>
+            <h3 className="text-3xl font-black italic tracking-tighter uppercase">04 <span className="text-xs font-bold text-red-400 font-body">Items</span></h3>
           </div>
-          <h2 className="text-xl font-heading font-black text-admin-navy uppercase">Syncing Catalog</h2>
-          <p className="text-admin-muted font-bold mt-2">Fetching your luxury collection...</p>
+          <Archive className="w-10 h-10 text-white/10" />
+        </div>
+        <div className="bg-accent p-8 rounded-[2rem] text-white flex items-center justify-between">
+          <div>
+            <p className="text-[10px] text-white/60 font-black uppercase tracking-widest mb-1">Most Profitable</p>
+            <h3 className="text-3xl font-black italic tracking-tighter uppercase">Living <span className="text-xs font-bold text-primary/60 font-body">Room</span></h3>
+          </div>
+          <Tag className="w-10 h-10 text-white/10" />
+        </div>
+        <div className="bg-white p-8 rounded-[2rem] border border-admin-border flex items-center justify-between shadow-sm">
+          <div>
+            <p className="text-[10px] text-admin-muted font-black uppercase tracking-widest mb-1">Active Listings</p>
+            <h3 className="text-3xl font-black italic tracking-tighter uppercase text-primary">84% <span className="text-xs font-bold text-admin-muted font-body">Published</span></h3>
+          </div>
+          <BarChart3 className="w-10 h-10 text-admin-bg" />
         </div>
       </div>
     </div>

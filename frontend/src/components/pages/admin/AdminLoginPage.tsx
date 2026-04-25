@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '../../../lib/utils';
+import { authApi } from '../../../lib/api';
 
 export const AdminLoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -31,21 +32,19 @@ export const AdminLoginPage: React.FC = () => {
       return;
     }
 
-    // Mock Authentication
-    const MOCK_USERS = [
-      { email: 'admin@homelux.co.ke', password: 'vick3900', role: 'Super Admin' },
-      { email: 'manager@homelux.co.ke', password: 'manager123', role: 'Store Manager' }
-    ];
-
-    setTimeout(() => {
-      const user = MOCK_USERS.find(u => u.email === email && u.password === password);
-      if (user) {
-         navigate('/admin/dashboard');
-      } else {
-        setError('Invalid credentials. Please try again.');
-        setIsLoading(false);
-      }
-    }, 1500);
+    try {
+      const response = await authApi.login({ email, password });
+      const { access, refresh } = response.data;
+      
+      localStorage.setItem('adminToken', access);
+      localStorage.setItem('refreshToken', refresh);
+      
+      navigate('/admin/dashboard');
+    } catch (err: any) {
+      setError(err.response?.data?.detail || 'Invalid credentials. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

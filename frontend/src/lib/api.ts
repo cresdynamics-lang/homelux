@@ -28,4 +28,12 @@ export const ordersApi = {
   updateStatus: (id: string, status: string) => api.patch(`/orders/${id}/`, { status }),
 };
 
+export const staffApi = {
+  list: (params?: any) => api.get('/staff/', { params }),
+  create: (data: any) => api.post('/staff/', data),
+  update: (id: number, data: any) => api.patch(`/staff/${id}/`, data),
+  delete: (id: number) => api.delete(`/staff/${id}/`),
+  resetPassword: (id: number, data: any) => api.post(`/staff/${id}/reset_password/`, data),
+};
+
 export default api;

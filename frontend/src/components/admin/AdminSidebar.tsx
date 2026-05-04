@@ -21,23 +21,22 @@ import {
   Menu,
   Bell
 } from 'lucide-react';
-import { cn } from '../../lib/utils';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useAuthStore } from '../../hooks/useAuthStore';
 
 const NAV_ITEMS = [
-  { id: 'dashboard', label: 'Dashboard', icon: BarChart3, path: '/admin/dashboard' },
-  { id: 'orders', label: 'Orders', icon: ShoppingBag, path: '/admin/orders', badge: 12 },
-  { id: 'products', label: 'Products', icon: Package, path: '/admin/products' },
-  { id: 'categories', label: 'Categories', icon: Layers, path: '/admin/categories' },
-  { id: 'customers', label: 'Customers', icon: Users, path: '/admin/customers' },
-  { id: 'inventory', label: 'Inventory', icon: MapPin, path: '/admin/inventory' },
-  { id: 'promotions', label: 'Promotions', icon: Gift, path: '/admin/promotions' },
-  { id: 'delivery', label: 'Delivery', icon: Truck, path: '/admin/delivery' },
-  { id: 'financials', label: 'Financials', icon: CircleDollarSign, path: '/admin/financials' },
-  { id: 'showrooms', label: 'Showrooms', icon: Store, path: '/admin/showrooms' },
-  { id: 'reviews', label: 'Reviews', icon: Star, path: '/admin/reviews' },
-  { id: 'reports', label: 'Reports', icon: PieChart, path: '/admin/reports' },
-  { id: 'staff', label: 'Staff', icon: UserCircle, path: '/admin/staff' },
+  { id: 'dashboard', label: 'Dashboard', icon: BarChart3, path: '/admin/dashboard', roles: ['SUPER_ADMIN', 'SALES_AGENT', 'DISPATCHER', 'FUNDI', 'DRIVER', 'INVENTORY_MANAGER', 'ACCOUNTANT'] },
+  { id: 'orders', label: 'Orders', icon: ShoppingBag, path: '/admin/orders', roles: ['SUPER_ADMIN', 'SALES_AGENT', 'DISPATCHER'] },
+  { id: 'products', label: 'Products', icon: Package, path: '/admin/products', roles: ['SUPER_ADMIN', 'SALES_AGENT', 'INVENTORY_MANAGER'] },
+  { id: 'categories', label: 'Categories', icon: Layers, path: '/admin/categories', roles: ['SUPER_ADMIN', 'INVENTORY_MANAGER'] },
+  { id: 'customers', label: 'Customers', icon: Users, path: '/admin/customers', roles: ['SUPER_ADMIN', 'SALES_AGENT'] },
+  { id: 'inventory', label: 'Inventory', icon: MapPin, path: '/admin/inventory', roles: ['SUPER_ADMIN', 'INVENTORY_MANAGER'] },
+  { id: 'promotions', label: 'Promotions', icon: Gift, path: '/admin/promotions', roles: ['SUPER_ADMIN', 'INVENTORY_MANAGER'] },
+  { id: 'delivery', label: 'Delivery', icon: Truck, path: '/admin/delivery', roles: ['SUPER_ADMIN', 'DISPATCHER', 'DRIVER'] },
+  { id: 'financials', label: 'Financials', icon: CircleDollarSign, path: '/admin/financials', roles: ['SUPER_ADMIN', 'ACCOUNTANT'] },
+  { id: 'showrooms', label: 'Showrooms', icon: Store, path: '/admin/showrooms', roles: ['SUPER_ADMIN', 'INVENTORY_MANAGER'] },
+  { id: 'reviews', label: 'Reviews', icon: Star, path: '/admin/reviews', roles: ['SUPER_ADMIN'] },
+  { id: 'reports', label: 'Reports', icon: PieChart, path: '/admin/reports', roles: ['SUPER_ADMIN', 'ACCOUNTANT'] },
+  { id: 'staff', label: 'Staff', icon: UserCircle, path: '/admin/staff', roles: ['SUPER_ADMIN'] },
 ];
 
 interface AdminSidebarProps {
@@ -54,6 +53,11 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   setIsMobileOpen
 }) => {
   const location = useLocation();
+  const { user, logout } = useAuthStore();
+
+  const filteredNavItems = NAV_ITEMS.filter(item => 
+    !item.roles || (user && item.roles.includes(user.role))
+  );
 
   const SidebarContent = (
     <div className="flex flex-col h-full bg-admin-navy text-white overflow-hidden py-6">
@@ -83,7 +87,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
 
       {/* Navigation */}
       <div className="flex-1 overflow-y-auto px-4 space-y-1 custom-scrollbar">
-        {NAV_ITEMS.map((item) => {
+        {filteredNavItems.map((item) => {
           const isActive = location.pathname === item.path;
           return (
             <Link
@@ -115,12 +119,6 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                   </motion.span>
                 )}
               </AnimatePresence>
-
-              {item.badge && !isCollapsed && (
-                <span className="ml-auto bg-accent text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
-                  {item.badge}
-                </span>
-              )}
             </Link>
           );
         })}
@@ -147,16 +145,19 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
             isCollapsed ? "justify-center" : ""
           )}>
             <div className="w-10 h-10 rounded-xl overflow-hidden bg-accent/20 flex-shrink-0 border-2 border-accent">
-               <img src="https://ui-avatars.com/api/?name=John+Kamau&background=E8A020&color=fff" alt="Avatar" />
+               <img src={`https://ui-avatars.com/api/?name=${user?.first_name}+${user?.last_name}&background=E8A020&color=fff`} alt="Avatar" />
             </div>
             {!isCollapsed && (
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-bold truncate">John Kamau</p>
-                <p className="text-[10px] text-white/40 uppercase tracking-widest font-black">Super Admin</p>
+                <p className="text-sm font-bold truncate">{user?.first_name} {user?.last_name}</p>
+                <p className="text-[10px] text-white/40 uppercase tracking-widest font-black">{user?.role.replace('_', ' ')}</p>
               </div>
             )}
             {!isCollapsed && (
-              <button className="p-2 hover:bg-white/5 rounded-lg text-white/40 hover:text-red-400 transition-colors">
+              <button 
+                onClick={logout}
+                className="p-2 hover:bg-white/5 rounded-lg text-white/40 hover:text-red-400 transition-colors"
+              >
                 <LogOut className="w-4 h-4" />
               </button>
             )}

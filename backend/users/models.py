@@ -28,10 +28,12 @@ class CustomUserManager(BaseUserManager):
 class User(AbstractUser):
     class Role(models.TextChoices):
         SUPER_ADMIN = 'SUPER_ADMIN', _('Super Admin')
-        STORE_MANAGER = 'STORE_MANAGER', _('Store Manager')
         SALES_AGENT = 'SALES_AGENT', _('Sales Agent')
+        DISPATCHER = 'DISPATCHER', _('Dispatcher')
+        FUNDI = 'FUNDI', _('Fundi (Technician)')
+        DRIVER = 'DRIVER', _('Driver')
+        INVENTORY_MANAGER = 'INVENTORY_MANAGER', _('Inventory Manager')
         ACCOUNTANT = 'ACCOUNTANT', _('Accountant')
-        DELIVERY_OFFICER = 'DELIVERY_OFFICER', _('Delivery Officer')
 
     username = None # Remove username field
     email = models.EmailField(_('email address'), unique=True)

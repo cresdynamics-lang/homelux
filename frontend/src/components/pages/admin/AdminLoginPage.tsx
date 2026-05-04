@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '../../../lib/utils';
-import { authApi } from '../../../lib/api';
+import { useAuthStore } from '../../../hooks/useAuthStore';
 
 export const AdminLoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -13,6 +13,7 @@ export const AdminLoginPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const loginStore = useAuthStore(state => state.login);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,9 +37,7 @@ export const AdminLoginPage: React.FC = () => {
       const response = await authApi.login({ email, password });
       const { access, refresh } = response.data;
       
-      localStorage.setItem('adminToken', access);
-      localStorage.setItem('refreshToken', refresh);
-      
+      await loginStore(access, refresh);
       navigate('/admin/dashboard');
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Invalid credentials. Please try again.');

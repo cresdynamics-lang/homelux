@@ -15,9 +15,19 @@ class UserViewSet(viewsets.ModelViewSet):
     ordering = ['-id']
 
     def get_permissions(self):
-        if self.action in ['create', 'destroy']:
+        if self.action in ['create', 'update', 'partial_update', 'destroy']:
             return [IsSuperAdmin()]
         return super().get_permissions()
+
+    @action(detail=True, methods=['post'], permission_classes=[IsSuperAdmin])
+    def reset_password(self, request, pk=None):
+        user = self.get_object()
+        password = request.data.get('password')
+        if not password:
+            return Response({'error': 'Password is required'}, status=400)
+        user.set_password(password)
+        user.save()
+        return Response({'status': 'password set'})
 
     def get_queryset(self):
         queryset = super().get_queryset()

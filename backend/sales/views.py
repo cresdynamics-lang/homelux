@@ -1,7 +1,7 @@
 from rest_framework import viewsets, permissions, filters
 from .models import Customer, Order, OrderItem, OrderNote, Payment
 from .serializers import CustomerSerializer, OrderSerializer, OrderItemSerializer, OrderNoteSerializer, PaymentSerializer
-from users.permissions import IsStoreManagerOrSuperAdmin
+from users.permissions import IsSalesAgentOrSuperAdmin
 
 class CustomerViewSet(viewsets.ModelViewSet):
     queryset = Customer.objects.all()
@@ -55,7 +55,7 @@ class OrderItemViewSet(viewsets.ModelViewSet):
 class OrderNoteViewSet(viewsets.ModelViewSet):
     queryset = OrderNote.objects.all()
     serializer_class = OrderNoteSerializer
-    permission_classes = [IsStoreManagerOrSuperAdmin]
+    permission_classes = [IsSalesAgentOrSuperAdmin]
 
 class PaymentViewSet(viewsets.ModelViewSet):
     queryset = Payment.objects.all()

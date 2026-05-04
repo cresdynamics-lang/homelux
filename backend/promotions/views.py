@@ -1,12 +1,12 @@
 from rest_framework import viewsets, permissions, filters
 from .models import Coupon, FlashSale
 from .serializers import CouponSerializer, FlashSaleSerializer
-from users.permissions import IsStoreManagerOrSuperAdmin
+from users.permissions import IsInventoryManagerOrSuperAdmin
 
 class CouponViewSet(viewsets.ModelViewSet):
     queryset = Coupon.objects.all()
     serializer_class = CouponSerializer
-    permission_classes = [IsStoreManagerOrSuperAdmin]
+    permission_classes = [IsInventoryManagerOrSuperAdmin]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['code', 'description']
     ordering_fields = ['valid_from', 'valid_until', 'used_count', 'discount_value']
@@ -24,7 +24,7 @@ class CouponViewSet(viewsets.ModelViewSet):
 class FlashSaleViewSet(viewsets.ModelViewSet):
     queryset = FlashSale.objects.all()
     serializer_class = FlashSaleSerializer
-    permission_classes = [IsStoreManagerOrSuperAdmin]
+    permission_classes = [IsInventoryManagerOrSuperAdmin]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['name']
     ordering_fields = ['start_time', 'end_time', 'discount_percentage']

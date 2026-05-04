@@ -1,7 +1,7 @@
 from rest_framework import viewsets, permissions, filters
 from .models import DeliveryZone, DeliveryAssignment
 from .serializers import DeliveryZoneSerializer, DeliveryAssignmentSerializer
-from users.permissions import IsStoreManagerOrSuperAdmin
+from users.permissions import IsDispatcherOrSuperAdmin
 
 class DeliveryZoneViewSet(viewsets.ModelViewSet):
     queryset = DeliveryZone.objects.all()
@@ -14,7 +14,7 @@ class DeliveryZoneViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         if self.action in ['list', 'retrieve']:
             return [permissions.IsAuthenticated()]
-        return [IsStoreManagerOrSuperAdmin()]
+        return [IsDispatcherOrSuperAdmin()]
 
 class DeliveryAssignmentViewSet(viewsets.ModelViewSet):
     queryset = DeliveryAssignment.objects.all()

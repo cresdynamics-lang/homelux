@@ -1,7 +1,7 @@
 from rest_framework import viewsets, permissions, filters
 from .models import Showroom, StockRecord
 from .serializers import ShowroomSerializer, StockRecordSerializer
-from users.permissions import IsStoreManagerOrSuperAdmin
+from users.permissions import IsInventoryManagerOrSuperAdmin
 
 class ShowroomViewSet(viewsets.ModelViewSet):
     queryset = Showroom.objects.all()
@@ -14,12 +14,12 @@ class ShowroomViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         if self.action in ['list', 'retrieve']:
             return [permissions.IsAuthenticated()]
-        return [IsStoreManagerOrSuperAdmin()]
+        return [IsInventoryManagerOrSuperAdmin()]
 
 class StockRecordViewSet(viewsets.ModelViewSet):
     queryset = StockRecord.objects.all()
     serializer_class = StockRecordSerializer
-    permission_classes = [IsStoreManagerOrSuperAdmin]
+    permission_classes = [IsInventoryManagerOrSuperAdmin]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['product__name', 'product__sku', 'showroom__name', 'showroom__branch_code']
     ordering_fields = ['stock_quantity', 'low_stock_threshold', 'id']

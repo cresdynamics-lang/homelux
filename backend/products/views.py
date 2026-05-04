@@ -1,7 +1,7 @@
 from rest_framework import viewsets, permissions, filters
 from .models import Category, Product, ProductMedia, ProductVariant
 from .serializers import CategorySerializer, ProductSerializer, ProductMediaSerializer, ProductVariantSerializer
-from users.permissions import IsStoreManagerOrSuperAdmin
+from users.permissions import IsInventoryManagerOrSuperAdmin
 
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
@@ -14,7 +14,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         if self.action in ['list', 'retrieve']:
             return [permissions.IsAuthenticated()]
-        return [IsStoreManagerOrSuperAdmin()]
+        return [IsInventoryManagerOrSuperAdmin()]
 
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
@@ -27,7 +27,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         if self.action in ['list', 'retrieve']:
             return [permissions.IsAuthenticated()]
-        return [IsStoreManagerOrSuperAdmin()]
+        return [IsInventoryManagerOrSuperAdmin()]
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -45,7 +45,7 @@ class ProductViewSet(viewsets.ModelViewSet):
 class ProductMediaViewSet(viewsets.ModelViewSet):
     queryset = ProductMedia.objects.all()
     serializer_class = ProductMediaSerializer
-    permission_classes = [IsStoreManagerOrSuperAdmin]
+    permission_classes = [IsInventoryManagerOrSuperAdmin]
     filter_backends = [filters.OrderingFilter]
     ordering_fields = ['display_order', 'id']
     ordering = ['display_order', 'id']
@@ -53,7 +53,7 @@ class ProductMediaViewSet(viewsets.ModelViewSet):
 class ProductVariantViewSet(viewsets.ModelViewSet):
     queryset = ProductVariant.objects.all()
     serializer_class = ProductVariantSerializer
-    permission_classes = [IsStoreManagerOrSuperAdmin]
+    permission_classes = [IsInventoryManagerOrSuperAdmin]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['sku', 'color', 'size']
     ordering_fields = ['stock_quantity', 'price_adjustment', 'id']

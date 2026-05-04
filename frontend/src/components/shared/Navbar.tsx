@@ -15,15 +15,20 @@ import {
 } from 'lucide-react';
 import { useCartStore } from '../../hooks/useCartStore';
 import { cn } from '../../lib/utils';
-import { CATEGORIES } from '../../data/furnitureData';
+import { CATEGORIES, NAV_SUBCATEGORY_IMAGES } from '../../data/furnitureData';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export const Navbar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
+  const [hoveredSubcategory, setHoveredSubcategory] = useState<string | null>(null);
   const totalItems = useCartStore((state) => state.totalItems());
   const location = useLocation();
+
+  useEffect(() => {
+    setHoveredSubcategory(null);
+  }, [activeMenu]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -88,7 +93,7 @@ export const Navbar: React.FC = () => {
             </div>
           ))}
           
-          <Link to="/showrooms" className="text-base font-bold tracking-wide uppercase hover:text-accent transition-colors">{CATEGORIES[0]?.title && "Showrooms"}</Link>
+
           <Link to="/about" className="text-base font-bold tracking-wide uppercase hover:text-accent transition-colors">Our Story</Link>
         </div>
 
@@ -145,28 +150,46 @@ export const Navbar: React.FC = () => {
             className="absolute top-full left-0 right-0 bg-white shadow-2xl border-t border-gray-100 py-12 px-6 hidden lg:block"
             onMouseEnter={() => setActiveMenu(activeMenu)}
           >
+            {(() => {
+              const activeCategory = CATEGORIES.find((c) => c.id === activeMenu);
+              const subMap = activeMenu ? NAV_SUBCATEGORY_IMAGES[activeMenu] : undefined;
+              const subHoverSrc =
+                hoveredSubcategory && subMap
+                  ? subMap[hoveredSubcategory]
+                  : undefined;
+              const previewImage = subHoverSrc ?? activeCategory?.imageUrl;
+              const previewTitle =
+                hoveredSubcategory && subHoverSrc
+                  ? hoveredSubcategory
+                  : activeCategory?.title;
+              return (
             <div className="max-w-7xl mx-auto grid grid-cols-4 gap-12">
               <div className="col-span-1 space-y-6">
                 <div className="bg-gray-50 rounded-3xl p-8 aspect-square relative overflow-hidden group">
                   <img 
-                    src={CATEGORIES.find(c => c.id === activeMenu)?.imageUrl} 
+                    key={previewImage}
+                    src={previewImage} 
                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
-                    alt="Category" 
+                    alt={previewTitle ?? 'Category'} 
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-primary/80 to-transparent flex flex-col justify-end p-6">
-                    <h3 className="text-2xl font-heading text-white font-bold">{CATEGORIES.find(c => c.id === activeMenu)?.title}</h3>
-                    <p className="text-white/80 text-xs mt-2 line-clamp-2">{CATEGORIES.find(c => c.id === activeMenu)?.description}</p>
+                    <h3 className="text-2xl font-heading text-white font-bold">{previewTitle}</h3>
+                    <p className="text-white/80 text-xs mt-2 line-clamp-2">{activeCategory?.description}</p>
                   </div>
                 </div>
               </div>
 
-              <div className="col-span-3">
+              <div
+                className="col-span-3"
+                onMouseLeave={() => setHoveredSubcategory(null)}
+              >
                 <div className="grid grid-cols-3 gap-y-10 gap-x-8">
-                  {CATEGORIES.find(c => c.id === activeMenu)?.subcategories.map((sub, idx) => (
+                  {activeCategory?.subcategories.map((sub, idx) => (
                     <Link 
                       key={idx} 
-                      to={`/category/${activeMenu}?sub=${sub}`}
+                      to={`/category/${activeMenu}?sub=${encodeURIComponent(sub)}`}
                       className="group flex items-center gap-3"
+                      onMouseEnter={() => setHoveredSubcategory(sub)}
                     >
                       <div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center group-hover:bg-accent/10 group-hover:text-accent transition-all">
                         <ChevronRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0" />
@@ -196,6 +219,8 @@ export const Navbar: React.FC = () => {
                 </div>
               </div>
             </div>
+            );
+            })()}
           </motion.div>
         )}
       </AnimatePresence>
@@ -236,7 +261,7 @@ export const Navbar: React.FC = () => {
                 </div>
               ))}
               <hr className="border-gray-100" />
-              <Link to="/showrooms" className="text-xl font-heading font-bold">Showrooms</Link>
+
               <Link to="/about" className="text-xl font-heading font-bold">Our Story</Link>
             </div>
 

@@ -45,6 +45,44 @@ export interface Category {
   subcategories: string[];
 }
 
+/**
+ * Navbar mega-menu preview images (files in `public/`), keyed by category id then subcategory label.
+ */
+export const NAV_SUBCATEGORY_IMAGES: Record<string, Record<string, string>> = {
+  "living-room": {
+    "Homelux Sofa Sets": encodeURI("/homelux sofaset.jpg"),
+    Stationary: encodeURI("/stationary.jpg"),
+    Sectional: encodeURI("/sectional.jpg"),
+    Recliners: encodeURI("/recliners.jpg"),
+    "Homelux Coffee Tables": encodeURI("/coffee tables.jpg"),
+    "TV Stand": encodeURI("/tv stand.jpg"),
+    "Homelux Accessories": encodeURI("/accessories.jpg"),
+    "Accent Chairs": encodeURI("/accent chairs.jpg"),
+    "Console Tables": encodeURI("/console tables.jpg"),
+    "Homelux Dining Sets": encodeURI("/homelux dining set.jpg"),
+  },
+  bedroom: {
+    "Homelux Mattresses": encodeURI("/homelux mattress.jpg"),
+    "Homelux Bedroom Sets": encodeURI("/bedroom sets.jpg"),
+    "Homelux Bedroom Suites": encodeURI("/bedroom suites.jpg"),
+    "Homelux Pillows": encodeURI("/homelux pillows.jpg"),
+  },
+  outdoor: {
+    "Outdoor Beds": encodeURI("/outdoor beds.jpg"),
+    "Outdoor Dining": encodeURI("/outdoor dining.jpg"),
+    "Outdoor Seating": encodeURI("/outdoor seating.jpg"),
+  },
+  office: {
+    Workstations: encodeURI("/workstation.jpg"),
+    "Office Desks": encodeURI("/office desk.jpg"),
+    "Conference Tables": encodeURI("/conference.jpg"),
+    "Reception Desks": encodeURI("/reception desks.jpg"),
+    "High Back Chairs": encodeURI("/high back chairs.jpg"),
+    "Mesh Chairs": encodeURI("/mesh chairs.jpg"),
+    "Filing Cabinets": encodeURI("/filing cabinets.jpg"),
+  },
+};
+
 export const CATEGORIES: Category[] = [
   {
     id: "living-room",
